@@ -2,15 +2,12 @@ package app
 
 import (
 	"fmt"
-	"net"
 	"net/http"
 	"path"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/charmbracelet/lipgloss"
 )
 
 type Application struct {
@@ -73,10 +70,13 @@ func (a *Application) ServeHttp() {
 	fmt.Println(servingStyle.Render(fmt.Sprintf("Serving file: %s for a max of %d connections.", a.file, a.max)))
 	printAddressesWithPort(a.port)
 	fmt.Println()
+
 	var srv http.Server
 	srv.Addr = a.GetAddr()
 	srv.Handler = mux
+
 	go srv.ListenAndServe()
+
 	for {
 		time.Sleep(1 * time.Second)
 		a.maxMutex.Lock()
@@ -91,54 +91,3 @@ func (a *Application) ServeHttp() {
 		}
 	}
 }
-
-func printAddressesWithPort(port int) {
-	ifaces, err := net.Interfaces()
-	if err != nil {
-		fmt.Println(errStyle.Render(fmt.Sprintf("Err: Unable to find interfaces of this machine: %v\n", err)))
-	} else {
-		for i := range ifaces {
-			if ifaces[i].Name == "lo" {
-				continue
-			}
-			var tmpl strings.Builder
-			tmpl.WriteString(fmt.Sprintf("%v:\n", ifaces[i].Name))
-			addrs, _ := ifaces[i].Addrs()
-			for j := range addrs {
-				if strings.Contains(addrs[j].String(), ":") {
-					continue
-				}
-				ip, _, _ := strings.Cut(addrs[j].String(), "/")
-
-				tmpl.WriteString(fmt.Sprintf("- %v:%d\n", ip, port))
-
-			}
-			fmt.Println(interfaceStyle.Render(strings.TrimSpace(tmpl.String())))
-		}
-	}
-}
-
-var interfaceStyle = lipgloss.NewStyle().
-	Bold(true).
-	Background(lipgloss.Color("63")).
-	Foreground(lipgloss.Color("#FAFAFA")).
-	Padding(2).Margin(1)
-
-var servingStyle = lipgloss.NewStyle().
-	Bold(true).
-	Background(lipgloss.Color("#3079CF")).
-	Foreground(lipgloss.Color("#FAFAFA")).
-	Padding(2).Margin(1)
-
-var errStyle = lipgloss.NewStyle().
-	Bold(true).
-	Background(lipgloss.Color("#f55050")).
-	Foreground(lipgloss.Color("#FAFAFA")).
-	Padding(2).
-	Margin(1)
-
-var logStyle = lipgloss.NewStyle().
-	Bold(true).
-	Background(lipgloss.Color("#64C964")).
-	Foreground(lipgloss.Color("#FAFAFA")).
-	Padding(0).Margin(0)
