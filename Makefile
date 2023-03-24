@@ -13,8 +13,8 @@ woof-linux-arm:
 
 .PHONY: install
 install: woof-linux-amd64
+	mkdir -p ~/.local/bin
 	mv woof-linux-amd64 ~/.local/bin/woof
-
 
 .PHONY: all
 all: clean woof-linux-amd64 woof-linux-arm woof-windows-amd64
