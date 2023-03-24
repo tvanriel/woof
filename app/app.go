@@ -60,6 +60,7 @@ func (a *Application) ServeHttp() {
 		fmt.Println(logStyle.Render(fmt.Sprintf("GET [%s] (max=%d,current=%d) User-Agent: %s", r.RemoteAddr, max, current, r.UserAgent())))
 
 		w.Header().Set("Content-Disposition", "attachment; filename="+strconv.Quote(path.Base(a.file)))
+		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Content-Type", "application/octet-stream")
 		http.ServeFile(w, r, a.file)
 		a.currentMutex.Lock()
