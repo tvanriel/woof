@@ -86,7 +86,7 @@ func (a *Application) ServeHttp() {
 		a.currentMutex.Lock()
 		current := a.current
 		a.currentMutex.Unlock()
-		if max == 0 && current == 0 {
+		if max <= 0 && current == 0 {
 			srv.Close()
 			return
 		}
